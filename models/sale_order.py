@@ -47,16 +47,18 @@ class SaleOrder(models.Model):
         """Devuelve KPIs y series de datos para el tablero de ventas."""
         state_labels = dict(self._fields["state"].selection)
 
-        # --- Dominio según el periodo seleccionado (sobre date_order) ----------
+        # --- Dominio base: compañía actual + periodo (sobre date_order) --------
+        company_id = self.env.company.id
+        base_domain = [("company_id", "=", company_id)]
         rng = self._dashboard_period_range(period)
-        domain = []
-        active_domain = []
+        domain = list(base_domain)
+        active_domain = list(base_domain)
         if rng:
             date_from, date_to = rng
             start_dt = fields.Datetime.to_string(datetime.combine(date_from, time.min))
             end_dt = fields.Datetime.to_string(datetime.combine(date_to, time.min))
-            domain = [("date_order", ">=", start_dt), ("date_order", "<", end_dt)]
-            active_domain = list(domain)
+            domain += [("date_order", ">=", start_dt), ("date_order", "<", end_dt)]
+            active_domain += [("date_order", ">=", start_dt), ("date_order", "<", end_dt)]
 
         # --- Conteo por estado -------------------------------------------------
         grouped = self.read_group(domain, ["state"], ["state"])
@@ -89,7 +91,10 @@ class SaleOrder(models.Model):
         ]
 
         # --- Top 10 productos vendidos (sale.order.line) -----------------------
-        line_domain = [("order_id.state", "in", self._DASHBOARD_CONFIRMED_STATES)]
+        line_domain = [
+            ("company_id", "=", company_id),
+            ("order_id.state", "in", self._DASHBOARD_CONFIRMED_STATES),
+        ]
         if rng:
             line_domain += [
                 ("order_id.date_order", ">=", start_dt),
@@ -143,7 +148,8 @@ class SaleOrder(models.Model):
             m_start_dt = fields.Datetime.to_string(datetime.combine(m_start, time.min))
             m_end_dt = fields.Datetime.to_string(datetime.combine(m_end, time.min))
             m_groups = self.read_group(
-                [
+                base_domain
+                + [
                     ("date_order", ">=", m_start_dt),
                     ("date_order", "<", m_end_dt),
                     ("state", "in", self._DASHBOARD_CONFIRMED_STATES),
