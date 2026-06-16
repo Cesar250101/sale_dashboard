@@ -1,6 +1,6 @@
 {
     'name': 'Tablero de Ventas',
-    'version': '16.0.1.0.0',
+    'version': '16.0.1.1.0',
     'category': 'Sales/Sales',
     'summary': 'Dashboard analítico para órdenes de venta (sale.order)',
     'description': """
