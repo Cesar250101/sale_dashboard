@@ -1,0 +1,263 @@
+// Paleta corporativa Method (tomada del logo)
+$sd-orange: #F5841F;
+$sd-orange-light: #FBB040;
+$sd-slate: #455160;
+$sd-slate-light: #6B7787;
+$sd-slate-dark: #2F3845;
+$sd-bg: #F4F6F9;
+
+.o_sale_dashboard {
+    background: $sd-bg;
+    padding: 24px;
+    height: 100%;
+    overflow: auto;
+    font-family: inherit;
+
+    // -------- Encabezado --------
+    .o_sd_header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        background: linear-gradient(120deg, $sd-slate-dark 0%, $sd-slate 100%);
+        border-left: 6px solid $sd-orange;
+        color: #fff;
+        border-radius: 14px;
+        padding: 20px 28px;
+        margin-bottom: 24px;
+        box-shadow: 0 6px 18px rgba(47, 56, 69, 0.18);
+
+        .o_sd_brand {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: $sd-orange-light !important;
+        }
+        h1 {
+            margin: 2px 0 0;
+            font-size: 26px;
+            font-weight: 700;
+            color: #ffffff !important;
+        }
+
+        .o_sd_header_tools {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .o_sd_period_select {
+            background: rgba(255, 255, 255, 0.95);
+            color: $sd-slate-dark;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-weight: 600;
+            min-width: 190px;
+            cursor: pointer;
+            &:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(245, 132, 31, 0.35);
+            }
+        }
+        .o_sd_refresh {
+            background: $sd-orange;
+            color: #fff !important;
+            border: 1px solid $sd-orange;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 600;
+            white-space: nowrap;
+            &:hover {
+                background: $sd-orange-light;
+                border-color: $sd-orange-light;
+            }
+        }
+    }
+
+    // -------- Estado de carga --------
+    .o_sd_loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        padding: 80px 0;
+        color: $sd-slate;
+        font-size: 16px;
+    }
+
+    // -------- Tarjetas KPI --------
+    .o_sd_cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+    .o_sd_card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: #fff;
+        border-radius: 12px;
+        padding: 18px 20px;
+        cursor: pointer;
+        border: 1px solid #E7ECF1;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        &:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 22px rgba(47, 56, 69, 0.14);
+            border-color: $sd-orange;
+        }
+
+        .o_sd_card_icon {
+            flex: 0 0 auto;
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #fff;
+            background: $sd-slate;
+
+            &.o_sd_icon--draft { background: #94A3B8; }
+            &.o_sd_icon--sent { background: $sd-orange-light; }
+            &.o_sd_icon--sale { background: #16A34A; }
+            &.o_sd_icon--cancel { background: #DC2626; }
+        }
+        .o_sd_card_body {
+            display: flex;
+            flex-direction: column;
+        }
+        .o_sd_card_value {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1;
+            color: $sd-slate-dark;
+        }
+        .o_sd_card_label {
+            font-size: 13px;
+            color: $sd-slate-light;
+            margin-top: 4px;
+        }
+
+        &.o_sd_card--total {
+            background: linear-gradient(135deg, $sd-orange 0%, $sd-orange-light 100%);
+            border: none;
+            .o_sd_card_icon { background: rgba(255, 255, 255, 0.25); }
+            .o_sd_card_value,
+            .o_sd_card_label { color: #fff; }
+        }
+    }
+
+    // -------- Tarjetas de montos --------
+    .o_sd_amounts {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+    .o_sd_amount_card {
+        background: #fff;
+        border: 1px solid #E7ECF1;
+        border-left: 5px solid $sd-slate;
+        border-radius: 12px;
+        padding: 18px 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        .o_sd_amount_label {
+            font-size: 13px;
+            color: $sd-slate-light;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .o_sd_amount_value {
+            font-size: 26px;
+            font-weight: 700;
+            color: $sd-slate-dark;
+        }
+        &.o_sd_amount--primary {
+            border-left-color: $sd-orange;
+            .o_sd_amount_value { color: $sd-orange; }
+        }
+    }
+
+    // -------- Gráficos / contenedores --------
+    .o_sd_charts,
+    .o_sd_tables {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 18px;
+
+        @media (max-width: 1100px) {
+            grid-template-columns: 1fr;
+        }
+    }
+    .o_sd_chart_box {
+        background: #fff;
+        border: 1px solid #E7ECF1;
+        border-radius: 12px;
+        padding: 18px 22px;
+
+        h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: $sd-slate-dark;
+            margin: 0 0 14px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid $sd-bg;
+        }
+        .o_sd_chart_canvas {
+            position: relative;
+            height: 300px;
+        }
+    }
+
+    // -------- Tablas (productos / clientes) --------
+    .o_sd_table {
+        width: 100%;
+        border-collapse: collapse;
+
+        thead th {
+            text-align: left;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: $sd-slate-light;
+            padding: 8px 12px;
+            border-bottom: 2px solid $sd-bg;
+        }
+        tbody tr {
+            cursor: pointer;
+            transition: background 0.12s ease;
+            &:hover { background: rgba(245, 132, 31, 0.08); }
+        }
+        tbody td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #EEF2F6;
+            color: $sd-slate-dark;
+            font-size: 14px;
+        }
+        .o_sd_rank {
+            font-weight: 700;
+            color: $sd-slate-light;
+            width: 48px;
+        }
+        .o_sd_amount_cell {
+            font-weight: 700;
+            color: $sd-orange;
+            white-space: nowrap;
+        }
+    }
+    .o_sd_empty {
+        padding: 24px;
+        text-align: center;
+        color: $sd-slate-light;
+    }
+}
