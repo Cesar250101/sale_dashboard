@@ -217,6 +217,13 @@ $sd-bg: #F4F6F9;
             position: relative;
             height: 300px;
         }
+        .o_sd_chart_canvas--tall {
+            height: 360px;
+        }
+    }
+
+    .o_sd_charts--full {
+        grid-template-columns: 1fr;
     }
 
     // -------- Tablas (productos / clientes) --------

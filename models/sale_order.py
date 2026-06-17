@@ -138,6 +138,45 @@ class SaleOrder(models.Model):
             reverse=True,
         )[:10]
 
+        # --- Ventas por categoría de producto ----------------------------------
+        product_cat_groups = self.env["sale.order.line"].read_group(
+            line_domain,
+            ["product_id", "price_subtotal:sum"],
+            ["product_id"],
+        )
+        product_ids = [g["product_id"][0] for g in product_cat_groups if g.get("product_id")]
+        products = self.env["product.product"].browse(product_ids)
+        product_categ = {p.id: (p.categ_id.id, p.categ_id.name or "Sin categoría") for p in products}
+        categ_totals = {}
+        for g in product_cat_groups:
+            if not g.get("product_id"):
+                continue
+            pid = g["product_id"][0]
+            cid, cname = product_categ.get(pid, (0, "Sin categoría"))
+            categ_totals.setdefault(cid, {"id": cid, "name": cname, "amount": 0.0})
+            categ_totals[cid]["amount"] += g["price_subtotal"] or 0.0
+        by_category = sorted(categ_totals.values(), key=lambda x: x["amount"], reverse=True)[:10]
+
+        # --- Ventas por vendedor -----------------------------------------------
+        salesperson_groups = self.read_group(
+            confirmed_domain + [("user_id", "!=", False)],
+            ["user_id", "amount_total:sum"],
+            ["user_id"],
+        )
+        by_salesperson = sorted(
+            [
+                {
+                    "id": g["user_id"][0],
+                    "name": g["user_id"][1],
+                    "amount": g["amount_total"],
+                }
+                for g in salesperson_groups
+                if g.get("user_id")
+            ],
+            key=lambda x: x["amount"],
+            reverse=True,
+        )[:10]
+
         # --- Tendencia de ventas (montos confirmados, últimos 12 meses) --------
         today = fields.Date.context_today(self)
         first_of_month = today.replace(day=1)
@@ -175,6 +214,8 @@ class SaleOrder(models.Model):
             "by_state": by_state,
             "by_product": by_product,
             "by_customer": by_customer,
+            "by_category": by_category,
+            "by_salesperson": by_salesperson,
             "trend": {"labels": months, "values": monthly_amounts},
             "currency": {"symbol": currency.symbol, "position": currency.position},
             "period": period,

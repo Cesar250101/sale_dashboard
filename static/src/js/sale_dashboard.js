@@ -44,6 +44,11 @@ export class SaleDashboard extends Component {
         this.state = useState({ data: null, loading: true, period: "this_month" });
         this.stateChartRef = useRef("stateChart");
         this.trendChartRef = useRef("trendChart");
+        this.categoryChartRef = useRef("categoryChart");
+        this.customerChartRef = useRef("customerChart");
+        this.salespersonChartRef = useRef("salespersonChart");
+        this.paretoProductRef = useRef("paretoProductChart");
+        this.paretoCustomerRef = useRef("paretoCustomerChart");
         this._charts = [];
         this._needRender = false;
 
@@ -53,7 +58,7 @@ export class SaleDashboard extends Component {
         });
         onMounted(() => this._renderCharts());
         onPatched(() => {
-            if (this._needRender && !this.state.loading && this.stateChartRef.el) {
+            if (this._needRender && !this.state.loading && (this.stateChartRef.el || this.categoryChartRef.el)) {
                 this._needRender = false;
                 this._renderCharts();
             }
@@ -133,6 +138,138 @@ export class SaleDashboard extends Component {
             );
         }
 
+        // --- Gráfico horizontal: ventas por categoría (Top 10) ---
+        if (this.categoryChartRef.el && data.by_category && data.by_category.length) {
+            const cats = [...data.by_category];
+            const cur = data.currency || { symbol: "$" };
+            const palette = [
+                COLORS.orange, COLORS.orangeLight, COLORS.slate, COLORS.slateLight,
+                "#16A34A", "#2563EB", "#9333EA", "#DC2626", "#0891B2", "#CA8A04",
+            ];
+            this._charts.push(
+                new Chart(this.categoryChartRef.el.getContext("2d"), {
+                    type: "bar",
+                    data: {
+                        labels: cats.map((c) => c.name),
+                        datasets: [{
+                            label: "Ventas",
+                            data: cats.map((c) => c.amount),
+                            backgroundColor: cats.map((_, i) => palette[i % palette.length]),
+                            borderRadius: 5,
+                            maxBarThickness: 28,
+                        }],
+                    },
+                    options: {
+                        indexAxis: "y",
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => `${cur.symbol} ${ctx.parsed.x.toLocaleString("es-CL")}`,
+                                },
+                            },
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                grid: { color: "#EEF2F6" },
+                                ticks: { callback: (v) => `${cur.symbol} ${Number(v).toLocaleString("es-CL")}` },
+                            },
+                            y: { grid: { display: false } },
+                        },
+                    },
+                })
+            );
+        }
+
+        // --- Gráfico horizontal: ventas por cliente (Top 10) ---
+        if (this.customerChartRef.el && data.by_customer && data.by_customer.length) {
+            const custs = [...data.by_customer];
+            const cur = data.currency || { symbol: "$" };
+            this._charts.push(
+                new Chart(this.customerChartRef.el.getContext("2d"), {
+                    type: "bar",
+                    data: {
+                        labels: custs.map((c) => c.name),
+                        datasets: [{
+                            label: "Ventas",
+                            data: custs.map((c) => c.amount),
+                            backgroundColor: COLORS.slate,
+                            hoverBackgroundColor: COLORS.orange,
+                            borderRadius: 5,
+                            maxBarThickness: 28,
+                        }],
+                    },
+                    options: {
+                        indexAxis: "y",
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => `${cur.symbol} ${ctx.parsed.x.toLocaleString("es-CL")}`,
+                                },
+                            },
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                grid: { color: "#EEF2F6" },
+                                ticks: { callback: (v) => `${cur.symbol} ${Number(v).toLocaleString("es-CL")}` },
+                            },
+                            y: { grid: { display: false } },
+                        },
+                    },
+                })
+            );
+        }
+
+        // --- Gráfico horizontal: ventas por vendedor (Top 10) ---
+        if (this.salespersonChartRef.el && data.by_salesperson && data.by_salesperson.length) {
+            const sellers = [...data.by_salesperson];
+            const cur = data.currency || { symbol: "$" };
+            this._charts.push(
+                new Chart(this.salespersonChartRef.el.getContext("2d"), {
+                    type: "bar",
+                    data: {
+                        labels: sellers.map((s) => s.name),
+                        datasets: [{
+                            label: "Ventas",
+                            data: sellers.map((s) => s.amount),
+                            backgroundColor: COLORS.orangeLight,
+                            hoverBackgroundColor: COLORS.orange,
+                            borderRadius: 5,
+                            maxBarThickness: 28,
+                        }],
+                    },
+                    options: {
+                        indexAxis: "y",
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => `${cur.symbol} ${ctx.parsed.x.toLocaleString("es-CL")}`,
+                                },
+                            },
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                grid: { color: "#EEF2F6" },
+                                ticks: { callback: (v) => `${cur.symbol} ${Number(v).toLocaleString("es-CL")}` },
+                            },
+                            y: { grid: { display: false } },
+                        },
+                    },
+                })
+            );
+        }
+
         // --- Gráfico de barras: ventas confirmadas por mes ---
         if (this.trendChartRef.el) {
             const cur = data.currency || { symbol: "$" };
@@ -178,6 +315,112 @@ export class SaleDashboard extends Component {
                 })
             );
         }
+
+        // --- Diagramas de Pareto: productos y clientes ---
+        this._renderPareto(this.paretoProductRef.el, data.by_product, COLORS.orange);
+        this._renderPareto(this.paretoCustomerRef.el, data.by_customer, COLORS.slate);
+    }
+
+    // Construye un diagrama de Pareto: barras (valor) + línea de % acumulado.
+    // Asume que `items` ya viene ordenado de mayor a menor.
+    _renderPareto(canvasEl, items, barColor) {
+        if (!canvasEl || !items || !items.length) {
+            return;
+        }
+        const data = this.state.data;
+        const cur = data.currency || { symbol: "$" };
+
+        const labels = items.map((it) => it.name);
+        const values = items.map((it) => it.amount || 0);
+        const total = values.reduce((a, b) => a + b, 0);
+        let running = 0;
+        const cumulative = values.map((v) => {
+            running += v;
+            return total ? (running / total) * 100 : 0;
+        });
+
+        // Chart.js v2.9.4 (versión incluida en Odoo 16): ejes con yAxes/xAxes.
+        this._charts.push(
+            new Chart(canvasEl.getContext("2d"), {
+                type: "bar",
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            type: "bar",
+                            label: "Ventas",
+                            data: values,
+                            backgroundColor: barColor,
+                            hoverBackgroundColor: COLORS.orangeLight,
+                            maxBarThickness: 38,
+                            order: 2,
+                            yAxisID: "y-amount",
+                        },
+                        {
+                            type: "line",
+                            label: "% acumulado",
+                            data: cumulative,
+                            borderColor: "#16A34A",
+                            backgroundColor: "rgba(22, 163, 74, 0.1)",
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointBackgroundColor: "#16A34A",
+                            lineTension: 0.2,
+                            fill: false,
+                            order: 1,
+                            yAxisID: "y-pct",
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    tooltips: {
+                        mode: "index",
+                        intersect: false,
+                        callbacks: {
+                            label: (item, chartData) => {
+                                const ds = chartData.datasets[item.datasetIndex];
+                                if (ds.yAxisID === "y-pct") {
+                                    return `% acumulado: ${Number(item.value).toFixed(1)}%`;
+                                }
+                                return `${cur.symbol} ${Number(item.value).toLocaleString("es-CL")}`;
+                            },
+                        },
+                    },
+                    legend: { position: "top", labels: { padding: 14, fontSize: 12 } },
+                    scales: {
+                        yAxes: [
+                            {
+                                id: "y-amount",
+                                position: "left",
+                                ticks: {
+                                    beginAtZero: true,
+                                    callback: (v) => `${cur.symbol} ${Number(v).toLocaleString("es-CL")}`,
+                                },
+                                gridLines: { color: "#EEF2F6" },
+                            },
+                            {
+                                id: "y-pct",
+                                position: "right",
+                                ticks: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    callback: (v) => `${v}%`,
+                                },
+                                gridLines: { display: false },
+                            },
+                        ],
+                        xAxes: [
+                            {
+                                gridLines: { display: false },
+                                ticks: { autoSkip: false, maxRotation: 50, minRotation: 30 },
+                            },
+                        ],
+                    },
+                },
+            })
+        );
     }
 
     // Abre la lista de órdenes filtrada por estado (+ periodo) al hacer clic en una KPI

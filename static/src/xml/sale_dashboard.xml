@@ -91,6 +91,28 @@
                     </div>
                 </div>
 
+                <!-- Diagramas de Pareto: productos y clientes -->
+                <div class="o_sd_charts">
+                    <div class="o_sd_chart_box">
+                        <h3><i class="fa fa-bar-chart me-2"/>Pareto de Productos</h3>
+                        <div class="o_sd_chart_canvas o_sd_chart_canvas--tall">
+                            <canvas t-ref="paretoProductChart"/>
+                        </div>
+                        <t t-if="!state.data.by_product.length">
+                            <div class="o_sd_empty">Sin datos para el periodo seleccionado.</div>
+                        </t>
+                    </div>
+                    <div class="o_sd_chart_box">
+                        <h3><i class="fa fa-bar-chart me-2"/>Pareto de Clientes</h3>
+                        <div class="o_sd_chart_canvas o_sd_chart_canvas--tall">
+                            <canvas t-ref="paretoCustomerChart"/>
+                        </div>
+                        <t t-if="!state.data.by_customer.length">
+                            <div class="o_sd_empty">Sin datos para el periodo seleccionado.</div>
+                        </t>
+                    </div>
+                </div>
+
                 <!-- Gráficos -->
                 <div class="o_sd_charts">
                     <div class="o_sd_chart_box">
@@ -104,6 +126,40 @@
                         <div class="o_sd_chart_canvas">
                             <canvas t-ref="trendChart"/>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos: ventas por categoría, clientes y vendedor -->
+                <div class="o_sd_charts o_sd_charts--full">
+                    <div class="o_sd_chart_box">
+                        <h3><i class="fa fa-tag me-2"/>Ventas por Categoría (Top 10)</h3>
+                        <div class="o_sd_chart_canvas o_sd_chart_canvas--tall">
+                            <canvas t-ref="categoryChart"/>
+                        </div>
+                        <t t-if="!state.data.by_category or !state.data.by_category.length">
+                            <div class="o_sd_empty">Sin datos para el periodo seleccionado.</div>
+                        </t>
+                    </div>
+                </div>
+
+                <div class="o_sd_charts">
+                    <div class="o_sd_chart_box">
+                        <h3><i class="fa fa-users me-2"/>Ventas por Cliente (Top 10)</h3>
+                        <div class="o_sd_chart_canvas o_sd_chart_canvas--tall">
+                            <canvas t-ref="customerChart"/>
+                        </div>
+                        <t t-if="!state.data.by_customer or !state.data.by_customer.length">
+                            <div class="o_sd_empty">Sin datos para el periodo seleccionado.</div>
+                        </t>
+                    </div>
+                    <div class="o_sd_chart_box">
+                        <h3><i class="fa fa-user me-2"/>Ventas por Vendedor (Top 10)</h3>
+                        <div class="o_sd_chart_canvas o_sd_chart_canvas--tall">
+                            <canvas t-ref="salespersonChart"/>
+                        </div>
+                        <t t-if="!state.data.by_salesperson or !state.data.by_salesperson.length">
+                            <div class="o_sd_empty">Sin datos para el periodo seleccionado.</div>
+                        </t>
                     </div>
                 </div>
 
@@ -149,6 +205,7 @@
                         <t t-else=""><div class="o_sd_empty">Sin datos para el periodo seleccionado.</div></t>
                     </div>
                 </div>
+
             </t>
         </div>
     </t>
